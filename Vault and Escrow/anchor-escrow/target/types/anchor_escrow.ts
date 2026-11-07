@@ -1,0 +1,1090 @@
+/**
+ * Program IDL in camelCase format in order to be used in JS/TS.
+ *
+ * Note that this is only a type helper and is not the actual IDL. The original
+ * IDL can be found at `target/idl/anchor_escrow.json`.
+ */
+export type AnchorEscrow = {
+  "address": "BS4oJrc7JBdHoijrqa8nsdF8T3x9EsNxzBdhpQCinkpB",
+  "metadata": {
+    "name": "anchorEscrow",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Timed conditional SPL token escrow (make / take / refund / update / confirm_delivery)"
+  },
+  "instructions": [
+    {
+      "name": "confirmDelivery",
+      "docs": [
+        "Designated `verifier` confirms delivery on-chain before `expires_at`."
+      ],
+      "discriminator": [
+        11,
+        109,
+        227,
+        53,
+        179,
+        190,
+        88,
+        155
+      ],
+      "accounts": [
+        {
+          "name": "verifier",
+          "signer": true
+        },
+        {
+          "name": "escrow",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  115,
+                  99,
+                  114,
+                  111,
+                  119
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "escrow.maker",
+                "account": "escrow"
+              },
+              {
+                "kind": "account",
+                "path": "escrow.seed",
+                "account": "escrow"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "make",
+      "docs": [
+        "Maker locks `deposit` of `mint_a` in `vault` and asks for `receive` of",
+        "`mint_b`, governed by a `Clock` time window (`unlock_delay`, `duration`)",
+        "and an optional `verifier` (delivery confirmation / co-signature)."
+      ],
+      "discriminator": [
+        138,
+        227,
+        232,
+        77,
+        223,
+        166,
+        96,
+        197
+      ],
+      "accounts": [
+        {
+          "name": "maker",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "mintA"
+        },
+        {
+          "name": "mintB"
+        },
+        {
+          "name": "makerAtaA",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "maker"
+              },
+              {
+                "kind": "account",
+                "path": "tokenProgram"
+              },
+              {
+                "kind": "account",
+                "path": "mintA"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "escrow",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  115,
+                  99,
+                  114,
+                  111,
+                  119
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "maker"
+              },
+              {
+                "kind": "arg",
+                "path": "seed"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "docs": [
+            "Token account for `mint_a` owned by the `escrow` PDA — holds the deposit."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "escrow"
+              },
+              {
+                "kind": "account",
+                "path": "tokenProgram"
+              },
+              {
+                "kind": "account",
+                "path": "mintA"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "associatedTokenProgram",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "tokenProgram"
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "seed",
+          "type": "u64"
+        },
+        {
+          "name": "deposit",
+          "type": "u64"
+        },
+        {
+          "name": "receive",
+          "type": "u64"
+        },
+        {
+          "name": "unlockDelay",
+          "type": "i64"
+        },
+        {
+          "name": "duration",
+          "type": "i64"
+        },
+        {
+          "name": "verifier",
+          "type": {
+            "option": "pubkey"
+          }
+        }
+      ]
+    },
+    {
+      "name": "refund",
+      "docs": [
+        "Returns the deposit to `maker` and closes `vault` + `escrow`.",
+        "Maker: before delivery confirmation, or after expiry.",
+        "Anyone (crank): after expiry."
+      ],
+      "discriminator": [
+        2,
+        96,
+        183,
+        251,
+        63,
+        208,
+        46,
+        46
+      ],
+      "accounts": [
+        {
+          "name": "caller",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "maker",
+          "writable": true,
+          "relations": [
+            "escrow"
+          ]
+        },
+        {
+          "name": "mintA",
+          "relations": [
+            "escrow"
+          ]
+        },
+        {
+          "name": "makerAtaA",
+          "docs": [
+            "Created (paid by `caller`) if the maker closed their ATA in the meantime."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "maker"
+              },
+              {
+                "kind": "account",
+                "path": "tokenProgram"
+              },
+              {
+                "kind": "account",
+                "path": "mintA"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "escrow",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  115,
+                  99,
+                  114,
+                  111,
+                  119
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "maker"
+              },
+              {
+                "kind": "account",
+                "path": "escrow.seed",
+                "account": "escrow"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "escrow"
+              },
+              {
+                "kind": "account",
+                "path": "tokenProgram"
+              },
+              {
+                "kind": "account",
+                "path": "mintA"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "associatedTokenProgram",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "tokenProgram"
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "take",
+      "docs": [
+        "Taker pays `receive` of `mint_b` to `maker` and receives the full vault",
+        "of `mint_a`. Requires unlocked & unexpired `Clock` window, satisfied",
+        "verifier condition (prior `confirm_delivery` or inline `verifier`",
+        "co-signature), and matching `expected_receive`."
+      ],
+      "discriminator": [
+        149,
+        226,
+        52,
+        104,
+        6,
+        142,
+        230,
+        39
+      ],
+      "accounts": [
+        {
+          "name": "taker",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "maker",
+          "docs": [
+            "Receives `mint_b` payment and rent from the closed `vault` & `escrow`."
+          ],
+          "writable": true,
+          "relations": [
+            "escrow"
+          ]
+        },
+        {
+          "name": "verifier",
+          "docs": [
+            "Optional inline co-signer when `escrow.verifier` is set and",
+            "`confirm_delivery` has not been called beforehand."
+          ],
+          "signer": true,
+          "optional": true
+        },
+        {
+          "name": "mintA",
+          "relations": [
+            "escrow"
+          ]
+        },
+        {
+          "name": "mintB",
+          "relations": [
+            "escrow"
+          ]
+        },
+        {
+          "name": "takerAtaA",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "taker"
+              },
+              {
+                "kind": "account",
+                "path": "tokenProgram"
+              },
+              {
+                "kind": "account",
+                "path": "mintA"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "takerAtaB",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "taker"
+              },
+              {
+                "kind": "account",
+                "path": "tokenProgram"
+              },
+              {
+                "kind": "account",
+                "path": "mintB"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "makerAtaB",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "maker"
+              },
+              {
+                "kind": "account",
+                "path": "tokenProgram"
+              },
+              {
+                "kind": "account",
+                "path": "mintB"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "escrow",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  115,
+                  99,
+                  114,
+                  111,
+                  119
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "maker"
+              },
+              {
+                "kind": "account",
+                "path": "escrow.seed",
+                "account": "escrow"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "escrow"
+              },
+              {
+                "kind": "account",
+                "path": "tokenProgram"
+              },
+              {
+                "kind": "account",
+                "path": "mintA"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "associatedTokenProgram",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "tokenProgram"
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "expectedReceive",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "update",
+      "docs": [
+        "Maker updates `receive`, `unlock_delay`, `duration`, and `verifier`",
+        "(allowed anytime prior to delivery confirmation)."
+      ],
+      "discriminator": [
+        219,
+        200,
+        88,
+        176,
+        158,
+        63,
+        253,
+        127
+      ],
+      "accounts": [
+        {
+          "name": "maker",
+          "signer": true,
+          "relations": [
+            "escrow"
+          ]
+        },
+        {
+          "name": "escrow",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  115,
+                  99,
+                  114,
+                  111,
+                  119
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "maker"
+              },
+              {
+                "kind": "account",
+                "path": "escrow.seed",
+                "account": "escrow"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "newReceive",
+          "type": "u64"
+        },
+        {
+          "name": "newUnlockDelay",
+          "type": "i64"
+        },
+        {
+          "name": "newDuration",
+          "type": "i64"
+        },
+        {
+          "name": "newVerifier",
+          "type": {
+            "option": "pubkey"
+          }
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "escrow",
+      "discriminator": [
+        31,
+        213,
+        123,
+        187,
+        186,
+        22,
+        218,
+        155
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "invalidAmount",
+      "msg": "Amount must be greater than zero"
+    },
+    {
+      "code": 6001,
+      "name": "invalidDuration",
+      "msg": "Duration must be between 0 (no expiry) and MAX_DURATION seconds"
+    },
+    {
+      "code": 6002,
+      "name": "invalidTimeWindow",
+      "msg": "Invalid time window: unlock delay must be >= 0 and unlock must precede expiry"
+    },
+    {
+      "code": 6003,
+      "name": "verifierRequiresExpiry",
+      "msg": "Attaching a verifier condition requires a non-zero expiry duration"
+    },
+    {
+      "code": 6004,
+      "name": "escrowLocked",
+      "msg": "The escrow timelock has not unlocked yet"
+    },
+    {
+      "code": 6005,
+      "name": "escrowExpired",
+      "msg": "The escrow has expired and can no longer be taken or confirmed"
+    },
+    {
+      "code": 6006,
+      "name": "notExpired",
+      "msg": "Only the maker can refund before the escrow expires"
+    },
+    {
+      "code": 6007,
+      "name": "conditionNotMet",
+      "msg": "Condition not met: delivery confirmation or verifier co-signature is required"
+    },
+    {
+      "code": 6008,
+      "name": "unauthorizedVerifier",
+      "msg": "Signer does not match the escrow's designated verifier"
+    },
+    {
+      "code": 6009,
+      "name": "alreadyConfirmed",
+      "msg": "Delivery has already been confirmed"
+    },
+    {
+      "code": 6010,
+      "name": "deliveryConfirmedActive",
+      "msg": "Delivery is confirmed; maker cannot refund until the escrow expires"
+    },
+    {
+      "code": 6011,
+      "name": "receiveMismatch",
+      "msg": "The escrow terms changed; the receive amount does not match"
+    },
+    {
+      "code": 6012,
+      "name": "sameMint",
+      "msg": "Mint A and mint B must be different"
+    },
+    {
+      "code": 6013,
+      "name": "overflow",
+      "msg": "Arithmetic overflow"
+    }
+  ],
+  "types": [
+    {
+      "name": "escrow",
+      "docs": [
+        "Timed & conditional SPL token escrow.",
+        "",
+        "The maker locks `mint_a` tokens inside `vault` and specifies:",
+        "1. `receive`: how much `mint_b` the taker must pay.",
+        "2. `unlock_at` & `expires_at`: a `Clock`-enforced settlement time window.",
+        "3. `verifier`: an optional third-party authority (e.g., courier, oracle, or",
+        "arbiter) whose condition must be satisfied either via a prior",
+        "`confirm_delivery` transaction or by co-signing `take` directly."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "seed",
+            "docs": [
+              "User-chosen seed so one maker can run many escrows concurrently."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "maker",
+            "type": "pubkey"
+          },
+          {
+            "name": "mintA",
+            "type": "pubkey"
+          },
+          {
+            "name": "mintB",
+            "type": "pubkey"
+          },
+          {
+            "name": "receive",
+            "docs": [
+              "Amount of `mint_b` the maker wants in exchange."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "createdAt",
+            "docs": [
+              "Unix timestamp (from the `Clock` sysvar) when the escrow was created."
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "unlockAt",
+            "docs": [
+              "Earliest Unix timestamp when `take` is allowed (`0` = unlocked immediately)."
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "expiresAt",
+            "docs": [
+              "Deadline Unix timestamp after which `take` is rejected and anyone may",
+              "permissionlessly `refund` the deposit back to the maker (`0` = no expiry)."
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "verifier",
+            "docs": [
+              "Optional verifier / delivery-confirmation authority. `None` = unconditional."
+            ],
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "deliveryConfirmed",
+            "docs": [
+              "True once `confirm_delivery` is executed (or immediately if `verifier` is `None`)."
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "confirmedAt",
+            "docs": [
+              "Unix timestamp when delivery was confirmed (`0` if not yet confirmed)."
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    }
+  ],
+  "constants": [
+    {
+      "name": "escrowSeed",
+      "docs": [
+        "Seed for the escrow PDA: `[ESCROW_SEED, maker, seed.to_le_bytes()]`."
+      ],
+      "type": "bytes",
+      "value": "[101, 115, 99, 114, 111, 119]"
+    },
+    {
+      "name": "maxDuration",
+      "docs": [
+        "Upper bound for how long an offer may stay open (1 year, in seconds)."
+      ],
+      "type": "i64",
+      "value": "31536000"
+    },
+    {
+      "name": "noExpiry",
+      "docs": [
+        "`expires_at` value meaning \"this offer never expires\"."
+      ],
+      "type": "i64",
+      "value": "0"
+    }
+  ]
+};

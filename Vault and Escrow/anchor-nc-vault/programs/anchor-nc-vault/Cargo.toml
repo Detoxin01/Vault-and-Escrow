@@ -1,0 +1,30 @@
+[package]
+name = "anchor-nc-vault"
+version = "0.1.0"
+description = "Non-custodial share vault with in-kind redemption of the underlying market position"
+edition.workspace = true
+rust-version.workspace = true
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "anchor_nc_vault"
+
+[features]
+default = []
+cpi = ["no-entrypoint"]
+no-entrypoint = []
+no-log-ix-name = []
+idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build", "mock-market/idl-build"]
+anchor-debug = []
+custom-heap = []
+custom-panic = []
+
+
+[dependencies]
+anchor-lang = { version = "1.2.2", features = ["init-if-needed"] }
+anchor-spl = "1.2.2"
+mock-market = { path = "../mock-market", features = ["cpi"] }
+
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(target_os, values("solana"))'] }
