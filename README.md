@@ -65,9 +65,10 @@ All three workspaces execute back-to-back via [`./run-all-tests.sh`](./run-all-t
 
 ### Terminal Screenshots
 
-![All Tests Passing — Part 1 (anchor-vault & anchor-escrow)](./docs/screenshots/tests-passing-1.png)
+<img width="1920" height="982" alt="Screenshot (2002)" src="https://github.com/user-attachments/assets/48bcb07b-1417-4899-bafe-b7c99b205a5e" />
 
-![All Tests Passing — Part 2 (anchor-escrow & anchor-nc-vault)](./docs/screenshots/tests-passing-2.png)
+<img width="1920" height="846" alt="Screenshot (2003)" src="https://github.com/user-attachments/assets/436bbb6e-4f91-43df-8d7d-c6abe470daf9" />
+
 
 ### Exact Terminal Output
 
